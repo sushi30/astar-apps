@@ -6,10 +6,13 @@ import { formatBalance } from '@polkadot/util';
 import BN from 'bn.js';
 import { StateInterface } from '../index';
 import { DappItem, DappStateInterface as State, NewDappItem } from './state';
-import { uploadFile, addDapp, getDapps} from 'src/hooks/firebase';
 import { ApiPromise } from '@polkadot/api';
 import { providerEndpoints } from 'src/config/chainEndpoints';
 import { ITuple } from '@polkadot/types/types';
+import { api as axios } from 'boot/axios'
+import { AxiosResponse } from 'axios';
+
+const apiUrl = process.env.API;
 
 const showError = (dispatch: Dispatch, message: string): void => {
   dispatch('general/showAlertMsg', {
@@ -32,11 +35,11 @@ const getFormattedBalance = (parameters: StakingParameters): string => {
   });
 }
 
-const getCollectionKey = (rootState: StateInterface) => {
+const getNetworkAlias = (rootState: StateInterface) => {
   const currentNetworkIdx = rootState.general.currentNetworkIdx;
   const currentNetworkAlias = providerEndpoints[currentNetworkIdx].networkAlias;
 
-  return `${currentNetworkAlias}-dapps`;
+  return currentNetworkAlias;
 }
 
 const hasExtrinsicFailedEvent = (events: EventRecord[], dispatch: Dispatch): boolean => {
@@ -77,9 +80,9 @@ const actions: ActionTree<State, StateInterface> = {
     commit('general/setLoading', true, { root: true });
 
     try {
-      const collectionKey = getCollectionKey(rootState);
-      const collection = await getDapps(collectionKey);
-      commit('addDapps', collection.docs.map(x => x.data()));
+      const collectionKey = getNetworkAlias(rootState);
+      const response: AxiosResponse<DappItem[]> = await axios.get(`api/store/${collectionKey}`, {baseURL: apiUrl});
+      commit('addDapps', response.data);
     } catch (e) {
       const error = e as unknown as Error; 
       showError(dispatch, error.message);
@@ -102,20 +105,13 @@ const actions: ActionTree<State, StateInterface> = {
             async result => {
               if (result.status.isFinalized) {
                 if (!hasExtrinsicFailedEvent(result.events, dispatch)) {
-                  if (parameters.dapp.iconFileName) {
-                    const fileName = `${parameters.dapp.address}_${parameters.dapp.iconFileName}`;
-                    parameters.dapp.iconUrl = await uploadFile(fileName, parameters.dapp.iconFile);
-                  } else {
-                    parameters.dapp.iconUrl = '/images/noimage.png';
-                  }
+                  const collectionKey = getNetworkAlias(rootState);
+                  const response: AxiosResponse<DappItem[]> = await axios.post(
+                    `api/store/${collectionKey}`,
+                    parameters.dapp,
+                    {baseURL: apiUrl});
                   
-                  if (!parameters.dapp.url) {
-                    parameters.dapp.url = '';
-                  }
-                  
-                  const collectionKey = getCollectionKey(rootState);
-                  const addedDapp = await addDapp(collectionKey, parameters.dapp);
-                  commit('addDapp', addedDapp);
+                  commit('addDapp', response.data);
 
                   dispatch('general/showAlertMsg', {
                     msg: `You successfully registered dApp ${parameters.dapp.name} to the store.`,

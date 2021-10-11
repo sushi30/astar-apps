@@ -85,6 +85,11 @@ module.exports = configure(function (ctx) {
         // cfg.resolve.fallback = {
         //   stream: require.resolve('stream-browserify')
         // }
+      },
+      env: {
+        API: ctx.dev
+          ? 'http://localhost:30000'
+          : 'https://prod.api.com/tbd'
       }
     },
 

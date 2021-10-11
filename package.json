@@ -35,7 +35,6 @@
     "core-js": "^3.6.5",
     "ethereumjs-util": "^7.1.0",
     "ethjs-util": "^0.1.6",
-    "firebase": "^9.0.2",
     "keccak": "byterose/keccak#stream-update",
     "node-polyfill-webpack-plugin": "^1.1.4",
     "quasar": "^2.0.0",

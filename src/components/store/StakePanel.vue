@@ -20,7 +20,6 @@
       </Button>
 
       <Button
-        v-if="stakeInfo?.hasStake"
         :small="true"
         :primary="false"
         class="tw-ml-auto"
