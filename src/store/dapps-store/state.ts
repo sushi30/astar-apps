@@ -9,6 +9,7 @@ export interface DappItem extends LooseObject {
 export interface NewDappItem extends DappItem {
   iconFileName: string;
   iconFile: string;
+  signature: string;
 }
 
 export interface DappStateInterface {

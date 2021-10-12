@@ -95,6 +95,27 @@ const actions: ActionTree<State, StateInterface> = {
     try {
       if (parameters.api) {
         const injector = await web3FromSource('polkadot-js');    
+
+        // *****
+        if (injector && injector.signer) {
+          const payload = parameters.api.tx.dappsStaking
+            .register(getAddressEnum(parameters.dapp.address))
+            .toHex();
+          
+          const signer = injector.signer.signRaw;
+          if (signer){
+            const result = await signer({
+              address: parameters.senderAddress,
+              data: payload,
+              type: 'bytes'
+            });
+
+            parameters.dapp.signature = result.signature;
+            console.log('signed', result.signature, payload, parameters.dapp.address, parameters.senderAddress);
+          }
+        }
+        // *****
+
         const unsub = await parameters.api.tx.dappsStaking
           .register(getAddressEnum(parameters.dapp.address))
           .signAndSend(
