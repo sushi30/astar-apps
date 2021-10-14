@@ -7,7 +7,6 @@ import BN from 'bn.js';
 import { StateInterface } from '../index';
 import { DappItem, DappStateInterface as State, NewDappItem } from './state';
 import { ApiPromise } from '@polkadot/api';
-import { providerEndpoints } from 'src/config/chainEndpoints';
 import { ITuple } from '@polkadot/types/types';
 import { api as axios } from 'boot/axios'
 import { AxiosResponse } from 'axios';
@@ -33,13 +32,6 @@ const getFormattedBalance = (parameters: StakingParameters): string => {
     decimals: parameters.decimals,
     withUnit: parameters.unit
   });
-}
-
-const getNetworkAlias = (rootState: StateInterface) => {
-  const currentNetworkIdx = rootState.general.currentNetworkIdx;
-  const currentNetworkAlias = providerEndpoints[currentNetworkIdx].networkAlias;
-
-  return currentNetworkAlias;
 }
 
 const hasExtrinsicFailedEvent = (events: EventRecord[], dispatch: Dispatch): boolean => {
@@ -76,12 +68,11 @@ const hasExtrinsicFailedEvent = (events: EventRecord[], dispatch: Dispatch): boo
 }
 
 const actions: ActionTree<State, StateInterface> = {
-  async getDapps ({ commit, dispatch, rootState }) {
+  async getDapps ({ commit, dispatch }) {
     commit('general/setLoading', true, { root: true });
 
     try {
-      const collectionKey = getNetworkAlias(rootState);
-      const response: AxiosResponse<DappItem[]> = await axios.get(`api/store/${collectionKey}`, {baseURL: apiUrl});
+      const response: AxiosResponse<DappItem[]> = await axios.get('api/store/', {baseURL: apiUrl});
       commit('addDapps', response.data);
     } catch (e) {
       const error = e as unknown as Error; 
@@ -91,7 +82,7 @@ const actions: ActionTree<State, StateInterface> = {
     }
   },
 
-  async registerDapp({ commit, dispatch, rootState }, parameters: RegisterParameters): Promise<boolean> {
+  async registerDapp({ commit, dispatch }, parameters: RegisterParameters): Promise<boolean> {
     try {
       if (parameters.api) {
         const injector = await web3FromSource('polkadot-js');    
@@ -126,19 +117,23 @@ const actions: ActionTree<State, StateInterface> = {
             async result => {
               if (result.status.isFinalized) {
                 if (!hasExtrinsicFailedEvent(result.events, dispatch)) {
-                  const collectionKey = getNetworkAlias(rootState);
-                  const response: AxiosResponse<DappItem[]> = await axios.post(
-                    `api/store/${collectionKey}`,
-                    parameters.dapp,
-                    {baseURL: apiUrl});
-                  
-                  commit('addDapp', response.data);
+                  try {
+                    const response: AxiosResponse<DappItem[]> = await axios.post(
+                      'api/store',
+                      parameters.dapp,
+                      {baseURL: apiUrl});
+                    
+                    commit('addDapp', response.data);
 
-                  dispatch('general/showAlertMsg', {
-                    msg: `You successfully registered dApp ${parameters.dapp.name} to the store.`,
-                    alertType: 'success',
-                  },
-                  { root: true });
+                    dispatch('general/showAlertMsg', {
+                      msg: `You successfully registered dApp ${parameters.dapp.name} to the store.`,
+                      alertType: 'success',
+                    },
+                    { root: true });
+                  } catch (e) {
+                    const error = e as unknown as Error; 
+                    showError(dispatch, error.message);
+                  }
                 } 
 
                 commit('general/setLoading', false, { root: true });
