@@ -10,6 +10,7 @@ export interface NewDappItem extends DappItem {
   iconFileName: string;
   iconFile: string;
   signature: string;
+  senderAddress: string;
 }
 
 export interface DappStateInterface {

@@ -118,6 +118,11 @@ const actions: ActionTree<State, StateInterface> = {
               if (result.status.isFinalized) {
                 if (!hasExtrinsicFailedEvent(result.events, dispatch)) {
                   try {
+                    parameters.dapp.senderAddress = parameters.senderAddress;
+                    if (!parameters.dapp.iconFile) {
+                      parameters.dapp.iconUrl = 'images/noimage.png';
+                    }
+
                     const response: AxiosResponse<DappItem[]> = await axios.post(
                       'api/store',
                       parameters.dapp,
