@@ -177,7 +177,7 @@
       >
         <div>
           <p class="tw-font-bold tw-text-right">
-            <span class="tw-leading-tight tw-text-xs">{{
+            <span class="tw-leading-tight tw-text-xs tw-text-white">{{
               $t('balance.switchToLockdrop', { value: isH160 ? 'Plasm Lockdrop' : 'EVM' })
             }}</span>
           </p>
