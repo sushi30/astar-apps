@@ -48,7 +48,7 @@ export function useStaking(addressRef: Ref<string>) {
     return { result };
   };
 
-  const getStakingInfoByEra = (era: number) => {
+  const getEraRewardsAndStakes = (era: number) => {
     const result = ref();
     watch(
       () => stakingRef.value,
@@ -169,7 +169,7 @@ export function useStaking(addressRef: Ref<string>) {
 
   return {
     getEraInfo,
-    getStakingInfoByEra,
+    getEraRewardsAndStakes,
     getStakedAmount,
     getContractEraStake,
     callRegister,
