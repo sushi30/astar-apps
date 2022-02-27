@@ -4,6 +4,7 @@ import { contractInstance } from 'src/config/web3/contracts';
 import dappsStakingContractAbi from 'src/config/web3/abi/dapps-staking-abi.json';
 import { Staking } from 'src/config/web3/contracts/staking';
 import { $web3 } from 'boot/api';
+import { getDefaultEthProvider } from 'src/config/web3/utils';
 
 export function useStaking(addressRef: Ref<string>) {
   const store = useStore();
@@ -16,14 +17,15 @@ export function useStaking(addressRef: Ref<string>) {
   watch(
     () => [$web3.value, addressRef.value],
     async () => {
-      if ($web3.value) {
+      if ($web3.value && addressRef.value) {
         const ci = contractInstance(
-          $web3.value,
+          // $web3.value,
+          getDefaultEthProvider(),
           dappsStakingContractAbi,
           PRECOMPILED_ADDR,
           addressRef.value
         );
-        stakingRef.value = new Staking(ci);
+        stakingRef.value = new Staking(ci, addressRef.value);
       }
     },
     { immediate: true }
@@ -39,7 +41,6 @@ export function useStaking(addressRef: Ref<string>) {
             currentEra: await stakingRef.value.getCurrentEra(),
             unbondingPeriod: await stakingRef.value.getUnbondingPeriod(),
           };
-          console.log('r', result.value);
         }
       },
       { immediate: true }
@@ -83,14 +84,14 @@ export function useStaking(addressRef: Ref<string>) {
     return { result };
   };
 
-  const getContractEraStake = (contract_id: string, era: number) => {
+  const getContractStake = (contract_id: string) => {
     const result = ref();
     watch(
       () => stakingRef.value,
       async () => {
         if (stakingRef.value) {
           result.value = {
-            stakedAmount: await stakingRef.value.getContractEraStake(contract_id, era),
+            stakedAmount: await stakingRef.value.getContractStake(contract_id),
           };
         }
       },
@@ -114,7 +115,8 @@ export function useStaking(addressRef: Ref<string>) {
     store.commit('general/setLoading', true);
     try {
       txHash = await stakingRef.value.callRegister(contractAddr);
-      store.dispatch('general/showAlertMsg', { txHash, alertType: 'success' });
+      console.log('ss', txHash);
+      store.dispatch('general/showAlertMsg', { msg: txHash, alertType: 'success' });
     } catch (e) {
       handleError(e);
     }
@@ -127,10 +129,11 @@ export function useStaking(addressRef: Ref<string>) {
     store.commit('general/setLoading', true);
     try {
       txHash = await stakingRef.value.callBondAndStake(contractAddr, amount);
-      store.dispatch('general/showAlertMsg', { txHash, alertType: 'success' });
+      store.dispatch('general/showAlertMsg', { msg: txHash, alertType: 'success' });
     } catch (e) {
       handleError(e);
     }
+    store.commit('general/setLoading', false);
     return txHash;
   };
 
@@ -139,9 +142,11 @@ export function useStaking(addressRef: Ref<string>) {
     store.commit('general/setLoading', true);
     try {
       txHash = await stakingRef.value.callUnbondAndUnstake(contractAddr, amount);
+      store.dispatch('general/showAlertMsg', { msg: txHash, alertType: 'success' });
     } catch (e) {
       handleError(e);
     }
+    store.commit('general/setLoading', false);
     return txHash;
   };
 
@@ -150,9 +155,11 @@ export function useStaking(addressRef: Ref<string>) {
     store.commit('general/setLoading', true);
     try {
       txHash = await stakingRef.value.callWithdrawUnbonded();
+      store.dispatch('general/showAlertMsg', { msg: txHash, alertType: 'success' });
     } catch (e) {
       handleError(e);
     }
+    store.commit('general/setLoading', false);
     return txHash;
   };
 
@@ -161,9 +168,11 @@ export function useStaking(addressRef: Ref<string>) {
     store.commit('general/setLoading', true);
     try {
       txHash = await stakingRef.value.callClaim(contractAddr, amount);
+      store.dispatch('general/showAlertMsg', { msg: txHash, alertType: 'success' });
     } catch (e) {
       handleError(e);
     }
+    store.commit('general/setLoading', false);
     return txHash;
   };
 
@@ -171,7 +180,7 @@ export function useStaking(addressRef: Ref<string>) {
     getEraInfo,
     getEraRewardsAndStakes,
     getStakedAmount,
-    getContractEraStake,
+    getContractStake,
     callRegister,
     callBondAndStake,
     callUnbondAndUnstake,
