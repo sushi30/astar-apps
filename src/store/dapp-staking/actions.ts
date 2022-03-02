@@ -102,6 +102,7 @@ const getEraStakes = async (
   api: ApiPromise,
   contractAddress: string
 ): Promise<Map<number, Option<EraStakingPoints>>> => {
+  console.log({ contractAddress });
   const eraStakes = await api.query.dappsStaking.contractEraStake.entries<EraStakingPoints>(
     getAddressEnum(contractAddress)
   );

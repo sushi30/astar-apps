@@ -1,33 +1,33 @@
-# Astar Portal (astar-portal)
+# How to run this script?
 
-Astar Portal App
-
-## Install the dependencies
-```bash
+```shell
+git clone ... astar-apps-test
+cd astar-apps-test
 yarn
+yarn ts-node -O '{"module": "commonjs"}' index.ts
 ```
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
-```bash
-quasar dev
+In powershell:
+
+```powershell
+yarn ts-node -O '{\"module\": \"commonjs\"}' .\index.ts
 ```
 
-### Build the app for production
-```bash
-quasar build
+## Result
+
+```javascript
+2022-03-02 12:59:49        RPC-CORE: queryStorageAt(keys: Vec<StorageKey>, at?: BlockHash): Vec<StorageChangeSet>:: Unable to decode storage dappsStaking.contractEraStake: entry 0:: createType(PalletDappsStakingEraStakingPoints):: decodeU8a: failed at 0xd38515e62f83f804861803773ae17af0… on stakers: BTreeMap<AccountId,Balance>:: Number can only safely store up to 53 bits
+2022-03-02 12:59:49             DRR: Unable to decode storage dappsStaking.contractEraStake: entry 0:: createType(PalletDappsStakingEraStakingPoints):: decodeU8a: failed at 0xd38515e62f83f804861803773ae17af0… on stakers: BTreeMap<AccountId,Balance>:: Number can only safely store up to 53 bits
+(node:19704) UnhandledPromiseRejectionWarning: Error: Unable to decode storage dappsStaking.contractEraStake: entry 0:: createType(PalletDappsStakingEraStakingPoints):: decodeU8a: failed at 0xd38515e62f83f804861803773ae17af0… on stakers: BTreeMap<AccountId,Balance>:: Number can only safely store up to 53 bits    
+    at RpcCore._newType (C:\Users\user\projects\astar-apps\node_modules\@polkadot\api\node_modules\@polkadot\rpc-core\bundle.cjs:477:13)
+    at RpcCore._formatStorageSetEntry (C:\Users\user\projects\astar-apps\node_modules\@polkadot\api\node_modules\@polkadot\rpc-core\bundle.cjs:456:17)       
+    at C:\Users\user\projects\astar-apps\node_modules\@polkadot\api\node_modules\@polkadot\rpc-core\bundle.cjs:433:25
+    at Type.reduce (<anonymous>)
+    at RpcCore._formatStorageSet (C:\Users\user\projects\astar-apps\node_modules\@polkadot\api\node_modules\@polkadot\rpc-core\bundle.cjs:432:17)
+    at C:\Users\user\projects\astar-apps\node_modules\@polkadot\api\node_modules\@polkadot\rpc-core\bundle.cjs:406:58
+    at Array.map (<anonymous>)
+    at RpcCore._formatOutput (C:\Users\user\projects\astar-apps\node_modules\@polkadot\api\node_modules\@polkadot\rpc-core\bundle.cjs:401:29)
+    at RpcCore._formatResult (C:\Users\user\projects\astar-apps\node_modules\@polkadot\api\node_modules\@polkadot\rpc-core\bundle.cjs:237:27)
+    at callWithRegistry (C:\Users\user\projects\astar-apps\node_modules\@polkadot\api\node_modules\@polkadot\rpc-core\bundle.cjs:261:19)
 ```
 
-### Customize the configuration
-See [Configuring quasar.conf.js](https://v2.quasar.dev/quasar-cli/quasar-conf-js).
-
-### Translation
-
-This project is using [vue-i18n](https://kazupon.github.io/vue-i18n/) to handle localization.
-Please refer to `src/i18n/files/LANGUAGE.ts` file to add or edit sentences.
-
-### How To Contribute
-
-When you push your branch to remote ones, please run `yarn lint` to comply to the code convention.
-
-When you add a new library, please make sure it license is not
-[GPL](https://en.wikipedia.org/wiki/GNU_General_Public_License). And please use `-D` for @types.
